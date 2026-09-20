@@ -121,8 +121,10 @@ Python, Apache Kafka, MySQL, Grafana, Docker and Docker Compose, Aiven (cloud My
 
 ## Notes
 
-This project was built as Assignments 1-3 for a Streaming Data Analytics
-course (industry/data-source identification, Kafka producer, and consumer +
-dashboard respectively), then extended with Docker Compose, cloud database
-mirroring, and Grafana Cloud so the dashboard is genuinely always-on and
-viewable by anyone, not just reproducible locally.
+## Notes
+
+The pipeline is fully reproducible via Docker Compose, with Grafana's
+data source and dashboard auto-provisioned on startup. The data is also
+mirrored to a cloud-hosted MySQL instance, powering the always-on public
+dashboard above, so the project stays viewable independent of whether the
+local pipeline is currently running.
