@@ -4,14 +4,27 @@ A real-time streaming data pipeline — **Kafka → MySQL → Grafana** — that
 ingests NYC taxi trip events and visualizes live fleet operations metrics:
 demand by zone, revenue, fares, and time-of-day patterns.
 
+## View the live dashboard
+
+**[View the dashboard — always on, no login required](https://sturdybeet2492.grafana.net/public-dashboards/2c53f422c7fb4652a2dc258c5dd6add9)**
+
+This is a permanent, publicly accessible dashboard backed by a real cloud
+database (2,000+ trip records) — viewable anytime, from anywhere, no setup
+required.
+
+*For live demos*, the full pipeline (Kafka to consumer to MySQL to Grafana,
+refreshing every 5 seconds) also runs locally and can be tunneled to a
+public URL on request — ask for a live link to watch new events stream in
+in real time.
+
 ![Dashboard screenshot](docs/dashboard-screenshot.png)
 
 ## The problem this solves
 
-Dispatch managers need to see demand *as it happens*, not in yesterday's
+Dispatch managers need to see demand as it happens, not in yesterday's
 report. This pipeline simulates that: a fleet manager watching live pickup
 demand by zone can reposition idle vehicles the moment demand starts
-climbing in an area — say, a business district clearing out at 6 PM —
+climbing in an area, say, a business district clearing out at 6 PM,
 instead of finding out the next morning that a zone was under-served, after
 riders already gave up and booked a competitor. The dashboard turns a
 same-day miss into a same-minute save.
@@ -19,19 +32,27 @@ same-day miss into a same-minute save.
 ## What it does
 
 - Streams NYC-taxi-style trip events (pickup/dropoff zone, fare, distance,
-  payment type, timestamps) through **Apache Kafka** in real time
-- A Python consumer writes every trip into **MySQL** as it arrives
-- **Grafana** reads live from MySQL and renders 9 panels: total revenue,
+  payment type, timestamps) through Apache Kafka in real time
+- A Python consumer writes every trip into MySQL as it arrives
+- Grafana reads live from MySQL and renders 9 panels: total revenue,
   trip volume, top-demand zones, payment mix, fare by zone, and
   time-of-day demand patterns
 
 ## Architecture
 
-```
-trip_data.csv  --->  trip_producer.py  --->  Kafka (topic: trips)  --->  consumer.py  --->  MySQL  --->  Grafana
-   (Faker-generated,         (Python/kafka-python)                    (Python/kafka-python +          (9 live panels)
-    real NYC TLC schema)                                               mysql-connector)
-```
+Local / live-demo pipeline:
+
+trip_data.csv -> trip_producer.py -> Kafka (topic: trips) -> consumer.py -> MySQL -> Grafana
+(Faker-generated, real NYC TLC schema) -> (Python/kafka-python) -> (mysql-connector) -> (9 live panels, refresh: 5s)
+
+Always-on public dashboard:
+
+Local pipeline -> migrate_to_cloud.py -> Aiven MySQL (cloud) -> Grafana Cloud (public link)
+
+The same trip data is mirrored to a free-tier cloud MySQL instance (Aiven),
+which a separate Grafana Cloud dashboard reads from directly. This is the
+link above, and it stays up independent of whether the local pipeline is
+running.
 
 ## Dashboard panels
 
@@ -73,36 +94,35 @@ python consumer.py
 python trip_producer.py
 ```
 
-Then open **http://localhost:3002** (Grafana, login `admin` / `admin`) — the
+Then open http://localhost:3002 (Grafana, login admin / admin). The
 MySQL data source and the full "NYC Taxi Streaming Analytics" dashboard are
 auto-provisioned on startup, no manual configuration needed.
 
 ## Project structure
-
-```
 .
-├── docker-compose.yml          # Kafka, Zookeeper, MySQL, Grafana — one command
-├── generate_data.py            # Synthetic trip data generator (Faker)
-├── trip_producer.py            # Kafka producer
-├── consumer.py                 # Kafka consumer -> MySQL writer
+├── docker-compose.yml # Kafka, Zookeeper, MySQL, Grafana - one command
+├── generate_data.py # Synthetic trip data generator (Faker)
+├── trip_producer.py # Kafka producer
+├── consumer.py # Kafka consumer -> MySQL writer
+├── migrate_to_cloud.py # One-time migration to Aiven cloud MySQL
 ├── db/
-│   └── init.sql                # Auto-creates the trips table on first run
+│ └── init.sql # Auto-creates the trips table on first run
 └── grafana/
-    └── provisioning/
-        ├── datasources/
-        │   └── mysql.yml       # Auto-connects Grafana to MySQL
-        └── dashboards/
-            ├── provider.yml
-            └── nyc-taxi-dashboard.json   # The full 9-panel dashboard
-```
+└── provisioning/
+├── datasources/
+│ └── mysql.yml # Auto-connects Grafana to MySQL
+└── dashboards/
+├── provider.yml
+└── nyc-taxi-dashboard.json # The full 9-panel dashboard
 
 ## Tech stack
 
-Python · Apache Kafka · MySQL · Grafana · Docker & Docker Compose
+Python, Apache Kafka, MySQL, Grafana, Docker and Docker Compose, Aiven (cloud MySQL), Grafana Cloud
 
 ## Notes
 
-This project was built as Assignments 1–3 for a Streaming Data Analytics
+This project was built as Assignments 1-3 for a Streaming Data Analytics
 course (industry/data-source identification, Kafka producer, and consumer +
-dashboard respectively), then extended with Docker Compose and provisioning
-config so the full pipeline is reproducible by anyone in under five minutes.
+dashboard respectively), then extended with Docker Compose, cloud database
+mirroring, and Grafana Cloud so the dashboard is genuinely always-on and
+viewable by anyone, not just reproducible locally.
