@@ -20,7 +20,7 @@ def main():
         value_deserializer=lambda v: json.loads(v.decode("utf-8")),
         auto_offset_reset="earliest",
         enable_auto_commit=True,
-        group_id="mysql-writer-group-v2",
+        group_id="mysql-writer-group-v3",
     )
 
     conn = mysql.connector.connect(**DB_CONFIG)
@@ -37,6 +37,9 @@ def main():
     count = 0
     for message in consumer:
         row = message.value
+        if "trip_id" not in row:
+            print(f"Skipping malformed message: {row}")
+            continue
         values = (
             int(row["trip_id"]),
             row["pickup_datetime"],
