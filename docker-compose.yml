@@ -6,6 +6,10 @@ version: '3.8'
 # This file is self-contained and uses container names / ports distinct
 # from any other class or shared docker-compose setup, to avoid collisions
 # when running alongside other environments on the same machine.
+#
+# Kafka waits for Zookeeper to pass a real healthcheck (not just "container
+# started") before attempting to launch, eliminating the broker-registration
+# race condition that otherwise causes Kafka to crash on a fresh start.
 
 services:
   sda-zookeeper-1:
@@ -13,6 +17,12 @@ services:
     container_name: sda-zookeeper-1
     ports:
       - "2182:2181"
+    healthcheck:
+      test: ["CMD-SHELL", "echo ruok | nc -w 2 localhost 2181 | grep imok || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     networks:
       - sda-network
 
@@ -27,7 +37,9 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: sda-zookeeper-1:2181
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     depends_on:
-      - sda-zookeeper-1
+      sda-zookeeper-1:
+        condition: service_healthy
+    restart: on-failure:10
     networks:
       - sda-network
 
