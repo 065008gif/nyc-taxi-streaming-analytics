@@ -6,11 +6,13 @@ demand by zone, revenue, fares, and time-of-day patterns.
 
 ## View the live dashboard
 
-**[View the dashboard — always on, no login required](https://sturdybeet2492.grafana.net/public-dashboards/2c53f422c7fb4652a2dc258c5dd6add9)**
+**[View the dashboard](https://sturdybeet2492.grafana.net/public-dashboards/2c53f422c7fb4652a2dc258c5dd6add9)**
 
-This is a permanent, publicly accessible dashboard backed by a real cloud
-database (2,000+ trip records) — viewable anytime, from anywhere, no setup
-required.
+This dashboard is backed by a real cloud database (2,000+ trip records).
+Note: the free-tier database occasionally goes idle after inactivity — if
+the dashboard loads blank on first click, please wait 30-60 seconds and
+refresh; it reconnects automatically. For a guaranteed-instant live demo,
+happy to walk through the pipeline in real time on a call.
 
 *For live demos*, the full pipeline (Kafka to consumer to MySQL to Grafana,
 refreshing every 5 seconds) also runs locally and can be tunneled to a
