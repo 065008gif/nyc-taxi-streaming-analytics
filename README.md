@@ -101,21 +101,24 @@ MySQL data source and the full "NYC Taxi Streaming Analytics" dashboard are
 auto-provisioned on startup, no manual configuration needed.
 
 ## Project structure
+
+```text
 .
-├── docker-compose.yml # Kafka, Zookeeper, MySQL, Grafana - one command
-├── generate_data.py # Synthetic trip data generator (Faker)
-├── trip_producer.py # Kafka producer
-├── consumer.py # Kafka consumer -> MySQL writer
+├── docker-compose.yml  # Kafka, Zookeeper, MySQL, Grafana - one command
+├── generate_data.py    # Synthetic trip data generator (Faker)
+├── trip_producer.py    # Kafka producer
+├── consumer.py         # Kafka consumer -> MySQL writer
 ├── migrate_to_cloud.py # One-time migration to Aiven cloud MySQL
 ├── db/
-│ └── init.sql # Auto-creates the trips table on first run
+│   └── init.sql        # Auto-creates the trips table on first run
 └── grafana/
-└── provisioning/
-├── datasources/
-│ └── mysql.yml # Auto-connects Grafana to MySQL
-└── dashboards/
-├── provider.yml
-└── nyc-taxi-dashboard.json # The full 9-panel dashboard
+    └── provisioning/
+        ├── datasources/
+        │   └── mysql.yml # Auto-connects Grafana to MySQL
+        └── dashboards/
+            ├── provider.yml
+            └── nyc-taxi-dashboard.json # The full 9-panel dashboard
+```
 
 ## Tech stack
 
